@@ -3,7 +3,17 @@
 
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <!-- minimum-scale=1 evita el zoom accidental al tocar dos veces,
+         que rompe el control táctil. user-scalable=no lo confirma.
+         viewport-fit=cover permite que el canvas llegue hasta los bordes
+         del notch y la barra de inicio en iPhone. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <!-- iOS: muestra el juego como una app nativa al guardar en la pantalla
+         de inicio. Esconde la barra de Safari y la barra de tareas. -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="El Camino a Ti" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="theme-color" content="#ffe9d6" />
     <title>El Camino a Ti</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -11,11 +21,15 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;500;600&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="css/juego.css?v=10">
+    <link rel="stylesheet" href="css/juego.css?v=11">
 </head>
 
 <body>
     <canvas id="juego" aria-hidden="true"></canvas>
+
+    <!-- Botón de pantalla completa: aparece durante el juego, permite
+         entrar en fullscreen real en Android y en iOS (añadir a inicio). -->
+    <button id="btn-fullscreen" aria-label="Pantalla completa" type="button" hidden>&#x26F6;</button>
 
     <!-- HUD: título y fecha del capítulo, aparece y se va solo -->
     <div id="hud" aria-hidden="true">
@@ -157,26 +171,26 @@
 
     <audio id="musica-fondo" src="assets/musica.mp3" loop preload="none"></audio>
 
-    <script src="js/nucleo.js?v=10"></script>
-    <script src="js/guardado.js?v=10"></script>
-    <script src="js/entrada.js?v=10"></script>
-    <script src="js/sprites.js?v=10"></script>
-    <script src="js/fisica.js?v=10"></script>
-    <script src="js/flora.js?v=10"></script>
-    <script src="js/particulas.js?v=10"></script>
-    <script src="js/camara.js?v=10"></script>
-    <script src="js/meta.js?v=10"></script>
-    <script src="js/personaje.js?v=10"></script>
-    <script src="js/escenario.js?v=10"></script>
-    <script src="js/guion.js?v=10"></script>
-    <script src="js/subtitulos.js?v=10"></script>
-    <script src="js/niveles.js?v=10"></script>
-    <script src="js/companero.js?v=10"></script>
-    <script src="js/sfx.js?v=10"></script>
-    <script src="js/juego.js?v=10"></script>
-    <script src="js/final.js?v=10"></script>
-    <script src="js/seleccion.js?v=10"></script>
-    <script src="js/menu.js?v=10"></script>
+    <script src="js/nucleo.js?v=11"></script>
+    <script src="js/guardado.js?v=11"></script>
+    <script src="js/entrada.js?v=11"></script>
+    <script src="js/sprites.js?v=11"></script>
+    <script src="js/fisica.js?v=11"></script>
+    <script src="js/flora.js?v=11"></script>
+    <script src="js/particulas.js?v=11"></script>
+    <script src="js/camara.js?v=11"></script>
+    <script src="js/meta.js?v=11"></script>
+    <script src="js/personaje.js?v=11"></script>
+    <script src="js/escenario.js?v=11"></script>
+    <script src="js/guion.js?v=11"></script>
+    <script src="js/subtitulos.js?v=11"></script>
+    <script src="js/niveles.js?v=11"></script>
+    <script src="js/companero.js?v=11"></script>
+    <script src="js/sfx.js?v=11"></script>
+    <script src="js/juego.js?v=11"></script>
+    <script src="js/final.js?v=11"></script>
+    <script src="js/seleccion.js?v=11"></script>
+    <script src="js/menu.js?v=11"></script>
 </body>
 
 </html>

@@ -67,6 +67,8 @@ body {
 
 #juego {
     position: fixed;
+    /* viewport-fit=cover en el meta viewport ya hace que el canvas
+       llegue hasta los bordes del notch en iOS. inset:0 cubre todo. */
     inset: 0;
     display: block;
     width: 100%;
@@ -144,9 +146,14 @@ body {
 #subtitulos {
     position: fixed;
     left: 50%;
-    bottom: max(26px, env(safe-area-inset-bottom));
+    /* Margen de abajo: respeta tanto la safe area de iPhone (notch,
+       barra de inicio) como la barra de navegación del navegador. */
+    bottom: max(28px, env(safe-area-inset-bottom));
     transform: translate(-50%, 22px);
     width: min(760px, calc(100vw - 32px));
+    /* En pantallas muy bajas (móvil horizontal) que la barra no se
+       coma más de un tercio de la pantalla. */
+    max-height: 38vh;
     z-index: 6;
     opacity: 0;
     pointer-events: none;
@@ -162,11 +169,14 @@ body {
     position: relative;
     padding: 18px 46px 18px 24px;
     border-radius: var(--radio-2);
-    background: rgba(255, 250, 242, .93);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    background: rgba(255, 250, 242, .96);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     border: 1px solid var(--borde);
     box-shadow: var(--sombra);
+    /* Permitir scroll dentro si el texto es largo en pantalla pequeña */
+    overflow-y: auto;
+    max-height: 36vh;
 }
 
 #subtitulos-texto {
@@ -260,7 +270,13 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 22px;
+    /* Respetar safe areas en los cuatro lados: en iPhone con notch,
+       sin esto el contenido queda bajo la barra de cámara o la barra
+       de inicio, y no se puede leer ni tocar. */
+    padding: max(22px, env(safe-area-inset-top))
+             max(22px, env(safe-area-inset-right))
+             max(22px, env(safe-area-inset-bottom))
+             max(22px, env(safe-area-inset-left));
     /* Velo CLARO. Oscurecer aquí es justo lo que hacía que la versión
        anterior pareciera otro juego. */
     background: radial-gradient(120% 90% at 50% 20%,
@@ -620,5 +636,66 @@ body {
     .btn:hover:not(:disabled),
     .tarjeta:hover {
         transform: none;
+    }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   BOTÓN DE PANTALLA COMPLETA
+   Flotante en la esquina superior derecha durante el juego.
+   Diseño neutro y compacto: no tiene que destacar, solo estar.
+   ══════════════════════════════════════════════════════════════════════ */
+#btn-fullscreen {
+    position: fixed;
+    /* Esquina superior derecha, respetando el notch de iPhone */
+    top: max(14px, env(safe-area-inset-top, 14px));
+    right: max(14px, env(safe-area-inset-right, 14px));
+    z-index: 8;  /* por encima del juego pero bajo los paneles (z:12) */
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(255, 250, 242, .82);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid var(--borde);
+    box-shadow: var(--sombra);
+    color: var(--tinta-2);
+    font-size: 1.15rem;
+    line-height: 1;
+    cursor: pointer;
+    /* Zona táctil amplia en móvil */
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    transition: opacity .3s, transform .3s var(--sal), background .2s;
+    /* Empieza oculto; lo muestra menu.js o juego.js al entrar en el juego */
+}
+
+#btn-fullscreen[hidden] {
+    display: none;
+}
+
+#btn-fullscreen:hover {
+    background: rgba(255, 250, 242, .98);
+    transform: scale(1.08);
+}
+
+#btn-fullscreen:active {
+    transform: scale(.93);
+}
+
+#btn-fullscreen.activo {
+    background: rgba(255, 210, 63, .3);
+    border-color: var(--borde-vivo);
+    color: var(--tinta);
+}
+
+/* En móvil horizontal el botón puede tapar parte del HUD de título.
+   Se pequeñiza un poco para no molestar. */
+@media (max-height: 460px) {
+    #btn-fullscreen {
+        width: 34px;
+        height: 34px;
+        font-size: 1rem;
     }
 }

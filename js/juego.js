@@ -305,7 +305,9 @@ const Juego = (function () {
             if (window.Sfx && Sfx.corazon) Sfx.corazon();
 
             const lineas = GUION.capitulos[nivel.guion].coleccionables || [];
-            if (lineas[c.indice]) Subtitulos.mostrar(lineas[c.indice]);
+            // Guardia: sólo mostrar si la línea existe y no está vacía
+            const lineaCorazon = lineas[c.indice];
+            if (lineaCorazon) Subtitulos.mostrar(lineaCorazon);
 
             if (!portalAbierto && corazonesTomados.size === nivel.corazones.length) {
                 abrirPortal();
@@ -1394,6 +1396,51 @@ const Juego = (function () {
 
     window.addEventListener('resize', medir);
     window.addEventListener('orientationchange', medir);
+    // Al entrar o salir de fullscreen el viewport cambia: hay que remedir
+    window.addEventListener('fullscreenchange', medir);
+    window.addEventListener('webkitfullscreenchange', medir);
+
+    // ══════════════════════════════════════════════
+    // PANTALLA COMPLETA
+    // Compatible con Safari (webkit) y el resto de navegadores.
+    // ══════════════════════════════════════════════
+    function enPantallaCompleta() {
+        return !!(document.fullscreenElement || document.webkitFullscreenElement);
+    }
+
+    function entrarPantallaCompleta() {
+        const el = document.documentElement;
+        if (el.requestFullscreen) el.requestFullscreen();
+        else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+    }
+
+    function salirPantallaCompleta() {
+        if (document.exitFullscreen) document.exitFullscreen();
+        else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+    }
+
+    function toggleFullscreen() {
+        enPantallaCompleta() ? salirPantallaCompleta() : entrarPantallaCompleta();
+    }
+
+    // Actualizar el icono del botón al cambiar el estado de fullscreen
+    function actualizarBotonFullscreen() {
+        const btn = document.getElementById('btn-fullscreen');
+        if (!btn) return;
+        btn.textContent = enPantallaCompleta() ? '⛶' : '⛶';
+        btn.setAttribute('aria-label', enPantallaCompleta() ? 'Salir de pantalla completa' : 'Pantalla completa');
+        btn.classList.toggle('activo', enPantallaCompleta());
+    }
+
+    const btnFs = document.getElementById('btn-fullscreen');
+    if (btnFs) {
+        btnFs.addEventListener('click', (e) => {
+            e.stopPropagation(); // que no avance el diálogo
+            toggleFullscreen();
+        });
+    }
+    window.addEventListener('fullscreenchange', actualizarBotonFullscreen);
+    window.addEventListener('webkitfullscreenchange', actualizarBotonFullscreen);
 
     return {
         medir, iniciar, irACapitulo,

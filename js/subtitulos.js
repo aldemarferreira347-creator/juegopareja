@@ -25,7 +25,7 @@ const Subtitulos = (function () {
     const elLector = document.getElementById('subtitulos-lector');
 
     const VELOCIDAD_TECLEO = 26;    // ms por grafema
-    const TIEMPO_MIN_VISIBLE = 700; // ms — evita saltarse una línea por un toque accidental
+    const TIEMPO_MIN_VISIBLE = 900; // ms — evita saltarse una línea por un toque accidental
 
     // ── Auto-avance ──
     // Sin esto el juego se COLGABA: juego.js espera a que no quede nada
@@ -34,9 +34,9 @@ const Subtitulos = (function () {
     // parado para siempre, sin que nada se lo dijera. Ahora la línea se
     // va sola cuando ha dado tiempo de leerla; tocar sigue sirviendo
     // para adelantarla.
-    const LECTURA_BASE = 1500;      // ms fijos por línea
-    const LECTURA_POR_LETRA = 55;   // ms extra por cada carácter visible
-    const LECTURA_MAX = 7000;
+    const LECTURA_BASE = 2400;      // ms fijos por línea (antes 1500 — muy corto para leer corriendo)
+    const LECTURA_POR_LETRA = 72;   // ms extra por cada carácter visible (antes 55)
+    const LECTURA_MAX = 10000;      // techo más alto para frases muy largas
 
     const cola = [];
     let actual = null;         // { texto, completo }
@@ -104,8 +104,10 @@ const Subtitulos = (function () {
     // línea de checkpoint, que debe leerse antes que cualquier otra
     // cosa pendiente); por defecto se encola al final.
     function mostrar(texto, opciones) {
+        // Guardia: nunca mostrar undefined, null ni cadenas vacías
+        if (texto === undefined || texto === null || String(texto).trim() === '') return;
         const o = opciones || {};
-        const item = { texto };
+        const item = { texto: String(texto) };
         if (o.prioridad === 'ahora') cola.unshift(item);
         else cola.push(item);
         if (!actual) siguiente();
@@ -130,10 +132,19 @@ const Subtitulos = (function () {
     // juego.js la usa para no soltar un aviso encima de otro.
     function pendientes() { return cola.length + (actual ? 1 : 0); }
 
-    // Tocar o hacer clic en cualquier parte de la pantalla avanza el
-    // diálogo activo. No interfiere con entrada.js: ese módulo decide
-    // moverse/saltar según la zona; esto sólo mira si hay algo que leer.
-    window.addEventListener('pointerdown', () => { if (actual) avanzar(); }, { passive: true });
+    // Tocar o hacer clic avanza el diálogo activo — PERO sólo en la
+    // mitad derecha de la pantalla. La mitad izquierda es el joystick
+    // táctil de entrada.js; si el texto avanzara también ahí, cualquier
+    // paso de movimiento saltaría la frase antes de que se pudiera leer.
+    // En escritorio (puntero de ratón) no hay zona táctil de movimiento,
+    // así que se trata como «derecha» siempre.
+    window.addEventListener('pointerdown', (e) => {
+        if (!actual) return;
+        // pointerType 'mouse' o 'pen': sin restricción de zona
+        if (e.pointerType !== 'touch') { avanzar(); return; }
+        // Táctil: sólo mitad derecha (zona de salto = zona de avance)
+        if (e.clientX > window.innerWidth / 2) avanzar();
+    }, { passive: true });
 
     return { mostrar, avanzar, hablando, vaciar, pendientes };
 })();

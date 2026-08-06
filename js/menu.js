@@ -59,8 +59,12 @@
         }
     }
 
+    const btnFullscreen = document.getElementById('btn-fullscreen');
+
     function jugar(quien, indice) {
         Entrada.reanudar();
+        // Mostrar el botón de pantalla completa al entrar en el juego
+        if (btnFullscreen) btnFullscreen.hidden = false;
         Juego.iniciar(quien, indice);
     }
 
