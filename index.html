@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#ffe9d6" />
+    <title>El Camino a Ti</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/juego.css?v=10">
+</head>
+
+<body>
+    <canvas id="juego" aria-hidden="true"></canvas>
+
+    <!-- HUD: título y fecha del capítulo, aparece y se va solo -->
+    <div id="hud" aria-hidden="true">
+        <span id="hud-capitulo"></span>
+    </div>
+
+    <!-- Subtítulos: barra inferior, no tapa al personaje -->
+    <div id="subtitulos" aria-hidden="true">
+        <div id="subtitulos-caja">
+            <p id="subtitulos-texto"></p>
+            <span id="subtitulos-sigue" aria-hidden="true">▾</span>
+        </div>
+    </div>
+    <p id="subtitulos-lector" class="solo-lector" aria-live="polite"></p>
+
+    <!-- Cargador: los cuatro PNG pesan y no hay juego hasta tenerlos -->
+    <div id="cargador">
+        <div id="cargador-flor" aria-hidden="true"></div>
+        <p>Sembrando el camino…</p>
+    </div>
+
+    <!-- Menú de inicio -->
+    <div id="menu-inicio" hidden>
+        <div class="panel-caja">
+            <span class="panel-sello">🌼</span>
+            <h1 id="menu-titulo"></h1>
+            <p id="menu-subtitulo" class="panel-sub"></p>
+            <p id="menu-continuar-detalle" class="panel-nota" hidden></p>
+            <div class="panel-btns">
+                <button id="menu-btn-continuar" class="btn btn-suave" type="button" hidden></button>
+                <button id="menu-btn-empezar" class="btn" type="button"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Selección de personaje -->
+    <div id="seleccion" hidden>
+        <div class="panel-caja panel-ancho">
+            <h1 id="sel-titulo"></h1>
+            <p id="sel-subtitulo" class="panel-sub"></p>
+
+            <div id="sel-tarjetas">
+                <button class="tarjeta" type="button" data-quien="carlo" aria-pressed="false">
+                    <span class="tarjeta-lienzo">
+                        <img src="img/cquieto.png" alt="" aria-hidden="true">
+                    </span>
+                    <strong class="tarjeta-nombre" data-nombre></strong>
+                    <span class="tarjeta-detalle" data-detalle></span>
+                    <span class="tarjeta-estela" style="--estela:#ffd23f"></span>
+                </button>
+
+                <button class="tarjeta" type="button" data-quien="isabela" aria-pressed="false">
+                    <span class="tarjeta-lienzo">
+                        <img src="img/iquieta.png" alt="" aria-hidden="true">
+                    </span>
+                    <strong class="tarjeta-nombre" data-nombre></strong>
+                    <span class="tarjeta-detalle" data-detalle></span>
+                    <span class="tarjeta-estela" style="--estela:#ff9ec4"></span>
+                </button>
+            </div>
+
+            <div class="panel-btns">
+                <button id="sel-btn" class="btn" type="button" disabled></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Panel al superar un capítulo: sale al terminar cada uno de los 4 -->
+    <div id="capitulo-panel" aria-hidden="true">
+        <div class="panel-caja">
+            <span class="panel-sello">💐</span>
+            <div id="cap-etapa-logrado">
+                <h1 id="cap-titulo"></h1>
+                <p id="cap-subtitulo" class="panel-sub"></p>
+                <div class="panel-btns">
+                    <button id="cap-btn-repetir" class="btn btn-suave" type="button"></button>
+                    <button id="cap-btn-siguiente" class="btn" type="button"></button>
+                </div>
+            </div>
+            <div id="cap-etapa-beso" hidden>
+                <p id="cap-beso-pregunta" class="panel-sub"></p>
+                <p id="cap-beso-nota" class="panel-nota" hidden></p>
+                <div class="panel-btns">
+                    <button id="cap-btn-beso-no" class="btn btn-suave" type="button"></button>
+                    <button id="cap-btn-beso-si" class="btn" type="button"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Panel final: la carta, después del capítulo 4 -->
+    <div id="final-panel" aria-hidden="true">
+        <div class="panel-caja">
+            <span class="panel-sello">💛</span>
+            <h1 id="final-titulo"></h1>
+            <div id="final-cuerpo"></div>
+            <p id="final-firma"></p>
+            <div class="panel-btns">
+                <button id="final-btn-reiniciar" class="btn btn-suave" type="button"></button>
+                <button id="final-btn-juntos" class="btn" type="button"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Panel de compromiso: la puerta de casa, al final del capítulo 5 -->
+    <div id="compromiso-panel" aria-hidden="true">
+        <div class="panel-caja">
+            <span class="panel-sello">🏡</span>
+
+            <div id="compromiso-etapa-pregunta">
+                <h1 id="compromiso-titulo"></h1>
+                <p id="compromiso-subtitulo" class="panel-sub"></p>
+                <div class="panel-btns">
+                    <button id="compromiso-btn-no" class="btn btn-suave" type="button"></button>
+                    <button id="compromiso-btn-si" class="btn" type="button"></button>
+                </div>
+            </div>
+
+            <div id="compromiso-etapa-si" hidden>
+                <h1 id="compromiso-si-titulo"></h1>
+                <p id="compromiso-si-texto" class="panel-sub"></p>
+            </div>
+
+            <div id="compromiso-etapa-no" hidden>
+                <h1 id="compromiso-no-titulo"></h1>
+                <p id="compromiso-no-texto" class="panel-sub"></p>
+                <div class="panel-btns">
+                    <button id="compromiso-btn-fin" class="btn btn-suave" type="button"></button>
+                    <button id="compromiso-btn-reintentar" class="btn" type="button"></button>
+                </div>
+            </div>
+
+            <div id="compromiso-etapa-fin" hidden>
+                <h1 id="compromiso-fin-titulo"></h1>
+                <p id="compromiso-fin-texto" class="panel-sub"></p>
+            </div>
+        </div>
+    </div>
+
+    <audio id="musica-fondo" src="assets/musica.mp3" loop preload="none"></audio>
+
+    <script src="js/nucleo.js?v=10"></script>
+    <script src="js/guardado.js?v=10"></script>
+    <script src="js/entrada.js?v=10"></script>
+    <script src="js/sprites.js?v=10"></script>
+    <script src="js/fisica.js?v=10"></script>
+    <script src="js/flora.js?v=10"></script>
+    <script src="js/particulas.js?v=10"></script>
+    <script src="js/camara.js?v=10"></script>
+    <script src="js/meta.js?v=10"></script>
+    <script src="js/personaje.js?v=10"></script>
+    <script src="js/escenario.js?v=10"></script>
+    <script src="js/guion.js?v=10"></script>
+    <script src="js/subtitulos.js?v=10"></script>
+    <script src="js/niveles.js?v=10"></script>
+    <script src="js/companero.js?v=10"></script>
+    <script src="js/sfx.js?v=10"></script>
+    <script src="js/juego.js?v=10"></script>
+    <script src="js/final.js?v=10"></script>
+    <script src="js/seleccion.js?v=10"></script>
+    <script src="js/menu.js?v=10"></script>
+</body>
+
+</html>

@@ -1,0 +1,624 @@
+/* ══════════════════════════════════════════════════════════════════════
+   JUEGO.CSS — «El Camino a Ti»
+
+   Reescritura total. La versión anterior heredaba los tokens oscuros de
+   sistema.css (--p-fondo: #0b0713, casi negro) y todos los paneles eran
+   vidrio negro. Esto se le regala a alguien: la interfaz tiene que
+   sentirse como papel de carta al sol, no como el menú de un shooter.
+
+   Reglas que ordenan todo lo de abajo:
+     · Ninguna sombra negra. Las sombras son de color ámbar — así el
+       relieve suma calidez en vez de restarla.
+     · La tinta es #4a3b52 (morado suave), nunca #000. El negro puro
+       sobre crema corta demasiado.
+     · Tres paneles (menú, selección, carta final) comparten UNA sola
+       clase .panel-caja. Un componente escrito una vez, tres usos.
+     · Tipografías del regalo principal: Playfair para los títulos,
+       Poppins para el resto.
+   ══════════════════════════════════════════════════════════════════════ */
+
+:root {
+    /* ── Paleta luminosa ── */
+    --crema: #fffaf2;
+    --crema-2: #fff4e4;
+    --tinta: #4a3b52;
+    --tinta-2: #8a7590;
+    --amarillo: #ffd23f;
+    --amarillo-2: #f5a623;
+    --amarillo-claro: #ffe98a;
+    --rosa: #ff9ec4;
+    --rosa-claro: #f8c8dc;
+    --verde: #7fbf7a;
+
+    --cielo: #ffe9d6;
+    --borde: rgba(245, 166, 35, .28);
+    --borde-vivo: rgba(245, 166, 35, .6);
+    /* Sombras de COLOR, jamás negras */
+    --sombra: 0 18px 44px rgba(214, 142, 40, .22), 0 3px 10px rgba(214, 142, 40, .14);
+    --sombra-btn: 0 8px 20px rgba(245, 166, 35, .34);
+
+    --radio: 26px;
+    --radio-2: 18px;
+
+    --ent: cubic-bezier(.22, 1, .36, 1);
+    --sal: cubic-bezier(.16, 1.12, .3, 1);
+
+    --t-titulo: clamp(1.9rem, 6vw, 3.1rem);
+    --t-cuerpo: clamp(.98rem, 2.5vw, 1.08rem);
+    --t-menudo: clamp(.8rem, 2vw, .9rem);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+    background: var(--cielo);
+    color: var(--tinta);
+    font-family: 'Poppins', system-ui, sans-serif;
+    /* Evita el resaltado azul al tocar en móvil, que rompe la ilusión */
+    -webkit-tap-highlight-color: transparent;
+}
+
+#juego {
+    position: fixed;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    /* Sin esto, arrastrar el dedo para mover al personaje hace scroll
+       de la página en vez de jugar. */
+    touch-action: none;
+}
+
+/* Solo para lectores de pantalla: fuera de la vista pero anunciable. */
+.solo-lector {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   HUD — título y fecha del capítulo
+   ══════════════════════════════════════════════════════════════════════ */
+#hud {
+    position: fixed;
+    top: max(18px, env(safe-area-inset-top));
+    left: 50%;
+    transform: translateX(-50%);
+    pointer-events: none;
+    z-index: 5;
+}
+
+#hud-capitulo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 10px 26px;
+    border-radius: 999px;
+    background: rgba(255, 250, 242, .82);
+    backdrop-filter: blur(9px);
+    -webkit-backdrop-filter: blur(9px);
+    border: 1px solid var(--borde);
+    box-shadow: var(--sombra);
+    opacity: 0;
+    transform: translateY(-14px);
+    transition: opacity .7s var(--ent), transform .7s var(--ent);
+}
+
+#hud-capitulo.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+#hud-capitulo strong {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.05rem, 3.4vw, 1.4rem);
+    font-weight: 700;
+    letter-spacing: .01em;
+}
+
+#hud-capitulo span {
+    font-size: var(--t-menudo);
+    color: var(--tinta-2);
+    letter-spacing: .12em;
+    text-transform: lowercase;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   SUBTÍTULOS — barra inferior
+   Crema translúcida, no una barra negra de cine: el juego pasa de día.
+   ══════════════════════════════════════════════════════════════════════ */
+#subtitulos {
+    position: fixed;
+    left: 50%;
+    bottom: max(26px, env(safe-area-inset-bottom));
+    transform: translate(-50%, 22px);
+    width: min(760px, calc(100vw - 32px));
+    z-index: 6;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .45s var(--ent), transform .45s var(--ent);
+}
+
+#subtitulos.visible {
+    opacity: 1;
+    transform: translate(-50%, 0);
+}
+
+#subtitulos-caja {
+    position: relative;
+    padding: 18px 46px 18px 24px;
+    border-radius: var(--radio-2);
+    background: rgba(255, 250, 242, .93);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--borde);
+    box-shadow: var(--sombra);
+}
+
+#subtitulos-texto {
+    margin: 0;
+    font-size: var(--t-cuerpo);
+    line-height: 1.62;
+    color: var(--tinta);
+}
+
+#subtitulos-sigue {
+    position: absolute;
+    right: 18px;
+    bottom: 12px;
+    font-size: .9rem;
+    color: var(--amarillo-2);
+    opacity: 0;
+    transition: opacity .3s;
+    animation: rebote 1.5s var(--ent) infinite;
+}
+
+#subtitulos-sigue.visible {
+    opacity: 1;
+}
+
+@keyframes rebote {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(4px);
+    }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   CARGADOR
+   ══════════════════════════════════════════════════════════════════════ */
+#cargador {
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 22px;
+    background: linear-gradient(170deg, #bfe4f2, #ffe9d6 55%, #ffd9e2);
+    color: var(--tinta-2);
+    font-size: var(--t-menudo);
+    letter-spacing: .14em;
+    text-transform: lowercase;
+}
+
+#cargador[hidden] {
+    display: none;
+}
+
+/* Una margarita hecha con una sola caja y ocho pétalos por box-shadow */
+#cargador-flor {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--amarillo-2);
+    box-shadow:
+        0 -26px 0 -4px var(--amarillo), 18px -18px 0 -4px var(--amarillo),
+        26px 0 0 -4px var(--amarillo), 18px 18px 0 -4px var(--amarillo),
+        0 26px 0 -4px var(--amarillo), -18px 18px 0 -4px var(--amarillo),
+        -26px 0 0 -4px var(--amarillo), -18px -18px 0 -4px var(--amarillo);
+    animation: girar 2.6s linear infinite;
+}
+
+@keyframes girar {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   PANELES — menú, selección y carta final comparten esta caja
+   ══════════════════════════════════════════════════════════════════════ */
+#menu-inicio,
+#seleccion,
+#final-panel,
+#capitulo-panel,
+#compromiso-panel {
+    position: fixed;
+    inset: 0;
+    z-index: 12;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 22px;
+    /* Velo CLARO. Oscurecer aquí es justo lo que hacía que la versión
+       anterior pareciera otro juego. */
+    background: radial-gradient(120% 90% at 50% 20%,
+            rgba(255, 250, 242, .55), rgba(255, 217, 226, .78));
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    overflow-y: auto;
+}
+
+#menu-inicio[hidden],
+#seleccion[hidden] {
+    display: none;
+}
+
+/* Estos dos se controlan por clase, no por [hidden]: necesitan
+   transición de entrada y los otros dos no. */
+#final-panel,
+#capitulo-panel,
+#compromiso-panel {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .9s var(--ent);
+}
+
+#final-panel.visible,
+#capitulo-panel.visible,
+#compromiso-panel.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.panel-caja {
+    position: relative;
+    width: min(560px, 100%);
+    padding: clamp(28px, 5vw, 46px);
+    text-align: center;
+    border-radius: var(--radio);
+    /* Papel de carta: un degradado casi imperceptible del crema al
+       durazno. Un relleno plano se ve barato en pantallas grandes. */
+    background:
+        radial-gradient(120% 80% at 50% 0%, rgba(255, 244, 214, .9), transparent 70%),
+        linear-gradient(165deg, #fffcf6, #fff3e2);
+    border: 1px solid var(--borde);
+    box-shadow: var(--sombra);
+    animation: entrarPanel .7s var(--sal) both;
+}
+
+/* Filete dorado interior: el detalle de imprenta que separa una tarjeta
+   de un rectángulo con borde. */
+.panel-caja::before {
+    content: "";
+    position: absolute;
+    inset: 7px;
+    border-radius: calc(var(--radio) - 7px);
+    border: 1px solid rgba(245, 166, 35, .22);
+    pointer-events: none;
+}
+
+.panel-ancho {
+    width: min(880px, 100%);
+}
+
+@keyframes entrarPanel {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+.panel-sello {
+    display: block;
+    font-size: 2.4rem;
+    line-height: 1;
+    margin-bottom: 14px;
+}
+
+.panel-caja h1 {
+    margin: 0 0 10px;
+    font-family: 'Playfair Display', serif;
+    font-size: var(--t-titulo);
+    font-weight: 700;
+    line-height: 1.14;
+    letter-spacing: -.015em;
+    color: var(--tinta);
+}
+
+/* Filigrana bajo el título: dos hilos y un rombo. Cuesta nada y da el
+   aire de portada de libro que pedían las tipografías. */
+.panel-caja h1::after {
+    content: "";
+    display: block;
+    width: 118px;
+    height: 9px;
+    margin: 16px auto 4px;
+    background:
+        linear-gradient(90deg, transparent, var(--amarillo-2) 22%, transparent 24%,
+            transparent 76%, var(--amarillo-2) 78%, transparent) center 4px/100% 1px no-repeat,
+        radial-gradient(circle at 50% 50%, var(--rosa) 0 3px, transparent 3px);
+    opacity: .8;
+}
+
+.panel-sub {
+    margin: 0 0 22px;
+    font-size: var(--t-cuerpo);
+    line-height: 1.6;
+    color: var(--tinta-2);
+}
+
+.panel-nota {
+    margin: -10px 0 18px;
+    font-size: var(--t-menudo);
+    color: var(--amarillo-2);
+}
+
+.panel-btns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 24px;
+}
+
+#final-cuerpo p {
+    margin: 0 0 14px;
+    font-size: var(--t-cuerpo);
+    line-height: 1.75;
+    color: var(--tinta);
+    text-align: left;
+}
+
+#final-firma {
+    margin: 22px 0 0;
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 1.15rem;
+    color: var(--amarillo-2);
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   BOTONES — 44px de alto mínimo: es la zona táctil cómoda en móvil
+   ══════════════════════════════════════════════════════════════════════ */
+.btn {
+    min-height: 48px;
+    padding: 13px 34px;
+    border: 0;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--amarillo-claro), var(--amarillo));
+    color: #6b4a12;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: .02em;
+    cursor: pointer;
+    box-shadow: var(--sombra-btn);
+    transition: transform .28s var(--sal), box-shadow .28s var(--ent), filter .2s;
+}
+
+.btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(245, 166, 35, .42);
+}
+
+.btn:active:not(:disabled) {
+    transform: translateY(1px) scale(.985);
+}
+
+.btn:disabled {
+    filter: grayscale(.5) opacity(.5);
+    cursor: default;
+    box-shadow: none;
+}
+
+.btn-suave {
+    background: transparent;
+    color: var(--tinta-2);
+    border: 1.5px solid var(--borde-vivo);
+    box-shadow: none;
+}
+
+.btn-suave:hover {
+    background: rgba(255, 244, 228, .8);
+    color: var(--tinta);
+}
+
+.btn:focus-visible,
+.tarjeta:focus-visible {
+    outline: 3px solid var(--rosa);
+    outline-offset: 3px;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   SELECCIÓN DE PERSONAJE
+   ══════════════════════════════════════════════════════════════════════ */
+#sel-tarjetas {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(12px, 3vw, 22px);
+    margin-top: 8px;
+}
+
+.tarjeta {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 18px 14px 20px;
+    border-radius: var(--radio-2);
+    border: 2px solid transparent;
+    background: linear-gradient(180deg, rgba(255, 244, 228, .9), rgba(255, 250, 242, .5));
+    cursor: pointer;
+    font-family: inherit;
+    color: var(--tinta);
+    transition: transform .3s var(--sal), border-color .3s, box-shadow .3s;
+}
+
+.tarjeta:hover {
+    transform: translateY(-4px);
+}
+
+.tarjeta.activa {
+    border-color: var(--borde-vivo);
+    box-shadow: var(--sombra);
+    background: linear-gradient(180deg, #fff6dd, rgba(255, 250, 242, .8));
+}
+
+.tarjeta-lienzo {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    height: clamp(150px, 26vh, 230px);
+}
+
+.tarjeta-lienzo img {
+    max-height: 100%;
+    max-width: 100%;
+    width: auto;
+    /* Sombra ámbar bajo la figura, para que no flote sobre el papel */
+    filter: drop-shadow(0 10px 14px rgba(214, 142, 40, .26));
+    transition: transform .5s var(--ent);
+}
+
+.tarjeta.activa .tarjeta-lienzo img {
+    transform: translateY(-5px) scale(1.03);
+}
+
+.tarjeta-nombre {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.35rem;
+    font-weight: 700;
+}
+
+.tarjeta-detalle {
+    font-size: var(--t-menudo);
+    line-height: 1.45;
+    color: var(--tinta-2);
+}
+
+/* La pastilla de color ES la diferencia entre los dos personajes: no
+   hay ventaja de juego, sólo identidad. Mostrarla aquí lo deja claro. */
+.tarjeta-estela {
+    width: 46px;
+    height: 6px;
+    margin-top: 8px;
+    border-radius: 999px;
+    background: var(--estela);
+    opacity: .55;
+    transition: opacity .3s, width .3s var(--sal);
+}
+
+.tarjeta.activa .tarjeta-estela {
+    opacity: 1;
+    width: 68px;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   RESPONSIVE
+   ══════════════════════════════════════════════════════════════════════ */
+@media (max-width: 560px) {
+    #sel-tarjetas {
+        gap: 10px;
+    }
+
+    .tarjeta {
+        padding: 12px 8px 14px;
+    }
+
+    .tarjeta-detalle {
+        display: none;
+        /* En móvil el nombre y el color bastan */
+    }
+
+    .tarjeta-nombre {
+        font-size: 1.1rem;
+    }
+
+    #subtitulos-caja {
+        padding: 14px 38px 14px 18px;
+    }
+}
+
+@media (max-height: 460px) {
+
+    /* Móvil en horizontal: el panel no puede comerse la pantalla */
+    .panel-caja {
+        padding: 20px 24px;
+    }
+
+    .tarjeta-lienzo {
+        height: 34vh;
+    }
+
+    .panel-sello {
+        display: none;
+    }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   MOVIMIENTO REDUCIDO
+   Se anula lo que se mueve solo (giros, rebotes, entradas animadas).
+   Los cambios de opacidad se quedan: no marean y sin ellos los paneles
+   aparecerían de golpe.
+   ══════════════════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+
+    #cargador-flor,
+    #subtitulos-sigue {
+        animation: none;
+    }
+
+    .panel-caja {
+        animation: none;
+    }
+
+    #hud-capitulo,
+    #subtitulos {
+        transition: opacity .3s linear;
+        transform: translateX(-50%);
+    }
+
+    #subtitulos.visible {
+        transform: translate(-50%, 0);
+    }
+
+    .btn,
+    .tarjeta,
+    .tarjeta-lienzo img,
+    .tarjeta-estela {
+        transition: none;
+    }
+
+    .btn:hover:not(:disabled),
+    .tarjeta:hover {
+        transform: none;
+    }
+}
