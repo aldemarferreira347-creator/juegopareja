@@ -26,6 +26,12 @@
     const elDetalle = document.getElementById('menu-continuar-detalle');
     const btnContinuar = document.getElementById('menu-btn-continuar');
     const btnEmpezar = document.getElementById('menu-btn-empezar');
+    
+    // Panel de Pantalla Completa
+    const elFullscreenPanel = document.getElementById('pantalla-completa-panel');
+    const btnFsSi = document.getElementById('fs-btn-si');
+    const btnFsNo = document.getElementById('fs-btn-no');
+
     const audio = document.getElementById('musica-fondo');
 
     const m = (window.GUION && GUION.menu) || {};
@@ -68,18 +74,51 @@
         Juego.iniciar(quien, indice);
     }
 
+    function entrarPantallaCompleta() {
+        const el = document.documentElement;
+        if (el.requestFullscreen) el.requestFullscreen();
+        else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+    }
+
+    function mostrarPanelFullscreen(onComplete) {
+        elMenu.hidden = true;
+        // Si ya está en fullscreen, saltar este panel
+        if (document.fullscreenElement || document.webkitFullscreenElement) {
+            onComplete();
+            return;
+        }
+        
+        elFullscreenPanel.hidden = false;
+        
+        const continuar = () => {
+            elFullscreenPanel.hidden = true;
+            onComplete();
+        };
+
+        btnFsSi.onclick = () => {
+            entrarPantallaCompleta();
+            continuar();
+        };
+        
+        btnFsNo.onclick = () => {
+            continuar();
+        };
+    }
+
     btnEmpezar.addEventListener('click', () => {
         desbloquearAudio();
-        if (hayProgreso) GUARDADO.borrar();
-        elMenu.hidden = true;
-        Seleccion.abrir(quien => jugar(quien, 0));
+        mostrarPanelFullscreen(() => {
+            if (hayProgreso) GUARDADO.borrar();
+            Seleccion.abrir(quien => jugar(quien, 0));
+        });
     });
 
     if (hayProgreso) {
         btnContinuar.addEventListener('click', () => {
             desbloquearAudio();
-            elMenu.hidden = true;
-            jugar(guardado.quien || 'carlo', guardado.capitulo);
+            mostrarPanelFullscreen(() => {
+                jugar(guardado.quien || 'carlo', guardado.capitulo);
+            });
         });
     }
 
