@@ -76,6 +76,7 @@ const Juego = (function () {
     const elCompFinTexto = document.getElementById('compromiso-fin-texto');
 
     let W = 0, H = 0, dpr = 1;
+    let prevW = 0, prevH = 0;
 
     let nivel = null, escena = null;
     let jugador = null, previo = null, arteJugador = null;
@@ -115,7 +116,8 @@ const Juego = (function () {
     let bufA = null, bufB = null, bufC = null;
 
     function prepararBuffers() {
-        const w = Math.max(2, Math.round(W / 4)), h = Math.max(2, Math.round(H / 4));
+        // Escalar por dpr para mantener la nitidez en pantallas Retina/Móvil
+        const w = Math.max(2, Math.round((W * dpr) / 4)), h = Math.max(2, Math.round((H * dpr) / 4));
         const mk = (a, b) => { const c = document.createElement('canvas'); c.width = a; c.height = b; return c; };
         bufA = mk(w, h);
         bufC = mk(w, h);
@@ -127,6 +129,14 @@ const Juego = (function () {
         // ignora para no rehornear el escenario entero a tamaño nulo.
         const w = window.innerWidth, h = window.innerHeight;
         if (w < 2 || h < 2) return;
+
+        // Evitar reiniciar el nivel entero por cambios menores de alto en móvil (ej. barra de navegación)
+        const deltaW = Math.abs(w - prevW);
+        const deltaH = Math.abs(h - prevH);
+        if (prevW > 0 && deltaW === 0 && deltaH < 100) return;
+        
+        prevW = w;
+        prevH = h;
 
         dpr = Math.min(window.devicePixelRatio || 1, 2);
         W = w; H = h;

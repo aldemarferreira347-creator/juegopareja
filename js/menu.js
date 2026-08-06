@@ -122,6 +122,17 @@
         });
     }
 
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            if (audio) audio.pause();
+        } else {
+            // Reanudar el audio si el juego ya arrancó (menú oculto) y no hay un panel abierto que indique pausa
+            if (audio && elMenu.hidden) {
+                audio.play().catch(() => { });
+            }
+        }
+    });
+
     // ══════════════════════════════════════════════
     // ARRANQUE
     // ══════════════════════════════════════════════

@@ -56,7 +56,7 @@ html,
 body {
     margin: 0;
     padding: 0;
-    height: 100%;
+    height: 100dvh;
     overflow: hidden;
     background: var(--cielo);
     color: var(--tinta);
@@ -438,6 +438,7 @@ body {
     font-weight: 600;
     letter-spacing: .02em;
     cursor: pointer;
+    touch-action: manipulation;
     box-shadow: var(--sombra-btn);
     transition: transform .28s var(--sal), box-shadow .28s var(--ent), filter .2s;
 }
@@ -496,6 +497,7 @@ body {
     border: 2px solid transparent;
     background: linear-gradient(180deg, rgba(255, 244, 228, .9), rgba(255, 250, 242, .5));
     cursor: pointer;
+    touch-action: manipulation;
     font-family: inherit;
     color: var(--tinta);
     transition: transform .3s var(--sal), border-color .3s, box-shadow .3s;
@@ -584,9 +586,34 @@ body {
     #subtitulos-caja {
         padding: 14px 38px 14px 18px;
     }
+
+    /* Rendimiento Móvil: Quitar backdrop-filter para evitar el colapso del WebGL/Canvas (blank screen) y lags */
+    #hud-capitulo,
+    #subtitulos-caja,
+    #btn-fullscreen {
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        background: rgba(255, 250, 242, 0.98);
+    }
+    
+    #menu-inicio,
+    #pantalla-completa-panel,
+    #seleccion,
+    #final-panel,
+    #capitulo-panel,
+    #compromiso-panel {
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        background: radial-gradient(120% 90% at 50% 20%, rgba(255, 250, 242, 0.95), rgba(255, 217, 226, 0.98));
+    }
 }
 
 @media (max-height: 460px) {
+
+    #subtitulos {
+        /* Subir los subtítulos en horizontal para que no se recorten por abajo */
+        top: max(55px, calc(env(safe-area-inset-top) + 40px));
+    }
 
     /* Móvil en horizontal: el panel no puede comerse la pantalla */
     .panel-caja {
