@@ -75,6 +75,20 @@ const Juego = (function () {
     const elCompFinTitulo = document.getElementById('compromiso-fin-titulo');
     const elCompFinTexto = document.getElementById('compromiso-fin-texto');
 
+    // Elementos de la Batalla (Jefe In-Game)
+    const elUiBatalla = document.getElementById('ui-batalla');
+    const elBatallaPregunta = document.getElementById('batalla-pregunta');
+    const elBatallaOpciones = document.getElementById('batalla-opciones');
+
+    // Panel de derrota ante Distancia
+    const elJefeDerrota = document.getElementById('jefe-derrota-panel');
+    const elJefeDerrotaTitulo = document.getElementById('jefe-derrota-titulo');
+    const elJefeDerrotaTexto = document.getElementById('jefe-derrota-texto');
+    const btnJefeDerrota = document.getElementById('jefe-derrota-btn');
+    
+    let oscuridadCielo = 0;
+    let cieloObjetivo = 0;
+
     let W = 0, H = 0, dpr = 1;
     let prevW = 0, prevH = 0;
 
@@ -201,6 +215,8 @@ const Juego = (function () {
 
         Camara.fijar(cam, jugador, nivel);
 
+        activarJefeParaCapitulo();
+
         if (silencioso) return;
 
         const gc = GUION.capitulos[nivel.guion];
@@ -210,6 +226,28 @@ const Juego = (function () {
         Subtitulos.mostrar(objetivoTexto());
         if (window.Sfx && Sfx.capitulo) Sfx.capitulo();
         GUARDADO.escribir({ capitulo: indice, quien, terminado: false });
+    }
+
+    // Distancia sólo vive en el capítulo 4 ("pleno"), justo antes del
+    // portal. Se usa tanto al cargar el capítulo como al reintentar
+    // tras una derrota, así que vive aparte en vez de duplicarse.
+    function activarJefeParaCapitulo() {
+        if (!window.Jefe) return;
+        if (nivel.clave === 'pleno') {
+            Jefe.iniciar(nivel.portal.x - 450, nivel.portal.y, {
+                inicio: () => {
+                    Entrada.pausar();
+                    oscurecerCielo();
+                    const j = GUION.jefe || {};
+                    if (j.presentacion) Subtitulos.mostrar(j.presentacion, { prioridad: 'ahora' });
+                },
+                mostrarPregunta: mostrarUiBatalla,
+                fin: () => { Entrada.reanudar(); ocultarUiBatalla(); aclararCielo(); abrirPortal(); },
+                perderVida: perderVida
+            });
+        } else {
+            Jefe.desactivar();
+        }
     }
 
     function objetivoTexto() {
@@ -293,10 +331,78 @@ const Juego = (function () {
         vidas = Math.max(0, vidas - 1);
         if (window.Sfx && Sfx.discusion) Sfx.discusion();
         Particulas.destello(jugador.x + jugador.ancho / 2, jugador.y + jugador.alto / 2, '#8d6b78');
+
+        // Quedarse sin vidas EN MEDIO de la batalla contra Distancia no es
+        // igual que caerse o tocar un corazón roto: aquí sí hay una
+        // cinemática de derrota — nunca "game over" de verdad, sólo un
+        // asalto perdido — antes de volver al checkpoint.
+        if (vidas <= 0 && window.Jefe && Jefe.activo) {
+            perderBatallaJefe();
+            return;
+        }
+
         const lineas = GUION.discusiones || [];
         if (lineas.length) Subtitulos.mostrar(lineas[(Math.random() * lineas.length) | 0], { prioridad: 'ahora' });
 
         if (vidas <= 0) volverAlCheckpoint(GUION.derrota || GUION.reaparicion);
+    }
+
+    // El jugador se quedó sin vidas respondiendo. Distancia se lleva al
+    // compañero volando por un momento, sale el panel de derrota, y al
+    // reintentar todo vuelve al último checkpoint con Distancia lista
+    // para el siguiente intento — igual de perdonavidas que el resto
+    // del juego, sólo que con más puesta en escena.
+    function perderBatallaJefe() {
+        Entrada.pausar();
+        ocultarUiBatalla();
+        const jp = (window.Jefe && Jefe.posicion) ? Jefe.posicion() : { x: jugador.x + 300, y: jugador.y - 100 };
+        if (window.Jefe && Jefe.anunciarVictoria) Jefe.anunciarVictoria();
+        if (companero) Companero.arrebatar(companero, jp.x, jp.y - 30, 1.7);
+
+        // vaciar() antes de mostrar: la línea de "error" de la pregunta
+        // que acaba de fallar puede seguir escribiéndose en pantalla, y
+        // 'ahora' sólo la pondría primera EN LA COLA — no la interrumpe.
+        // Sin esto, el aviso de la derrota podía no llegar a verse nunca
+        // antes de que apareciera el panel.
+        Subtitulos.vaciar();
+        const j = GUION.jefe || {};
+        Subtitulos.mostrar((j.derrotaAviso || '{otro} se pierde en la grieta...').replace('{otro}', nombreCompanero()), { prioridad: 'ahora' });
+
+        setTimeout(() => {
+            if (companero) companero.visible = false;
+            mostrarPanelDerrotaJefe();
+        }, 1700);
+    }
+
+    function mostrarPanelDerrotaJefe() {
+        if (window.Jefe) Jefe.desactivar();
+        ocultarUiBatalla();
+        aclararCielo();
+
+        const j = GUION.jefe || {};
+        if (elJefeDerrotaTitulo) elJefeDerrotaTitulo.textContent = j.derrotaTitulo || 'Distancia gana este asalto';
+        if (elJefeDerrotaTexto) elJefeDerrotaTexto.textContent = j.derrotaTexto || '';
+        if (btnJefeDerrota) btnJefeDerrota.textContent = j.derrotaBoton || 'Cerrar la grieta y volver a intentarlo';
+        if (elJefeDerrota) {
+            elJefeDerrota.classList.add('visible');
+            elJefeDerrota.setAttribute('aria-hidden', 'false');
+        }
+    }
+
+    if (btnJefeDerrota) {
+        btnJefeDerrota.addEventListener('click', () => {
+            if (elJefeDerrota) {
+                elJefeDerrota.classList.remove('visible');
+                elJefeDerrota.setAttribute('aria-hidden', 'true');
+            }
+            if (companero) {
+                Companero.soltar(companero);
+                companero.visible = true;
+            }
+            volverAlCheckpoint(GUION.derrota || GUION.reaparicion);
+            activarJefeParaCapitulo();
+            Entrada.reanudar();
+        });
     }
 
     function comprobarCorazones() {
@@ -320,7 +426,11 @@ const Juego = (function () {
             if (lineaCorazon) Subtitulos.mostrar(lineaCorazon);
 
             if (!portalAbierto && corazonesTomados.size === nivel.corazones.length) {
-                abrirPortal();
+                if (window.Jefe && Jefe.activo) {
+                    Subtitulos.mostrar("Algo te espera cerca del portal...", { prioridad: 'ahora' });
+                } else {
+                    abrirPortal();
+                }
             }
         }
     }
@@ -504,6 +614,40 @@ const Juego = (function () {
         }
     }
 
+    // ══════════════════════════════════════════════
+    // UI BATALLA
+    // ══════════════════════════════════════════════
+    function mostrarUiBatalla(pregunta) {
+        if (!elUiBatalla || !elBatallaPregunta || !elBatallaOpciones) return;
+        elBatallaPregunta.textContent = pregunta.pregunta;
+        elBatallaOpciones.innerHTML = '';
+        
+        pregunta.opciones.forEach((opcion, i) => {
+            const btn = document.createElement('button');
+            btn.className = 'btn-batalla';
+            btn.textContent = opcion;
+            btn.type = 'button';
+            btn.onclick = () => {
+                if (window.Jefe) Jefe.recibirRespuesta(i);
+            };
+            elBatallaOpciones.appendChild(btn);
+        });
+
+        elUiBatalla.hidden = false;
+    }
+
+    function ocultarUiBatalla() {
+        if (elUiBatalla) elUiBatalla.hidden = true;
+    }
+
+    function oscurecerCielo() {
+        cieloObjetivo = 0.65; // Nivel de oscuridad (alfa)
+    }
+
+    function aclararCielo() {
+        cieloObjetivo = 0;
+    }
+
     // Muestra la segunda etapa del mismo panel — el peaje del beso — y
     // guarda qué hacer si contesta que sí. No es un candado de verdad
     // (no hay forma de comprobarlo): es sólo un empujón cariñoso.
@@ -583,6 +727,17 @@ const Juego = (function () {
         comprobarCorazones();
         if (nivel.casa) comprobarCasa(); else comprobarPortal();
         sembrarEstela(Fisica.PASO_FIJO);
+        
+        // Transición suave del cielo
+        if (oscuridadCielo < cieloObjetivo) oscuridadCielo = Math.min(cieloObjetivo, oscuridadCielo + Fisica.PASO_FIJO * 0.5);
+        if (oscuridadCielo > cieloObjetivo) oscuridadCielo = Math.max(cieloObjetivo, oscuridadCielo - Fisica.PASO_FIJO * 0.5);
+
+        if (window.Jefe && Jefe.activo) {
+            Jefe.actualizar(Fisica.PASO_FIJO, jugador);
+            if (Jefe.sacudida > 0) {
+                Camara.sacudir(cam, Jefe.sacudida);
+            }
+        }
         avanceMax = Math.max(avanceMax, Nucleo.lim(jugador.x / (nivel.ancho * 0.85), 0, 1));
     }
 
@@ -1128,6 +1283,12 @@ const Juego = (function () {
         const cx = cam.despX, cy = cam.despY;
 
         escena.dibujarFondo(g, cx, cy, t, avanceMax);
+        
+        // Oscurecimiento del cielo para la batalla
+        if (oscuridadCielo > 0) {
+            g.fillStyle = `rgba(30, 15, 45, ${oscuridadCielo})`;
+            g.fillRect(0, 0, W, H);
+        }
 
         dibujarPlataformas(cx, cy, t);
         Flora.dibujarVivas(g, cx, cy, W, t);
@@ -1144,6 +1305,11 @@ const Juego = (function () {
 
         dibujarCorazones(cx, cy, t);
         dibujarPeligros(cx, cy, t);
+        
+        if (window.Jefe && Jefe.activo) {
+            Jefe.dibujar(g, cx, cy);
+        }
+        
         Companero.dibujar(g, companero, cx, cy, t);
 
         // El cuerpo dibujado es una mezcla entre el paso de física

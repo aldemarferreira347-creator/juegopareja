@@ -40,8 +40,21 @@ const Companero = (function () {
             muelle: new Nucleo.Muelle(pos.x, 34, 11),
             acompana: !!nivel.acompana,
             visible: true,
-            saludando: false
+            saludando: false,
+            arrebatado: null
         };
+    }
+
+    // Distancia se lo lleva: durante `duracion` segundos deja de seguir
+    // al jugador y vuela en arco hacia (xf, yf) — la posición del jefe.
+    // Sustituye por completo el seguimiento normal mientras dura.
+    function arrebatar(comp, xf, yf, duracion) {
+        const c = comp.cuerpo;
+        comp.arrebatado = { t: 0, duracion: duracion || 1.7, x0: c.x, y0: c.y, xf, yf };
+    }
+
+    function soltar(comp) {
+        comp.arrebatado = null;
     }
 
     // Devuelve la Y de la superficie que hay bajo un punto, o null.
@@ -57,6 +70,23 @@ const Companero = (function () {
 
     function actualizar(comp, jugador, nivel, dt) {
         const c = comp.cuerpo;
+
+        if (comp.arrebatado) {
+            const r = comp.arrebatado;
+            r.t = Math.min(r.duracion, r.t + dt);
+            const p = Nucleo.suave(r.t / r.duracion);
+            const xAntes = c.x;
+            c.x = Nucleo.mezcla(r.x0, r.xf, p);
+            // Arco hacia arriba: no se lo arrastra por el suelo, se lo lleva volando.
+            c.y = Nucleo.mezcla(r.y0, r.yf, p) - Math.sin(p * Math.PI) * 90;
+            c.vx = dt > 0 ? (c.x - xAntes) / dt : 0;
+            if (Math.abs(c.vx) > 20) c.mirandoDer = c.vx > 0;
+            c.forzarGiro = false;
+            c.enSuelo = false;
+            c.sombraY = undefined;
+            Personaje.actualizar(comp.arte, c, dt);
+            return;
+        }
 
         if (comp.acompana) {
             // ── Capítulo 4: corre al lado ──
@@ -98,7 +128,7 @@ const Companero = (function () {
         Personaje.dibujar(g, comp.arte, comp.cuerpo, camaraX, camaraY, t);
     }
 
-    return { crear, actualizar, dibujar, superficieBajo, SEPARACION };
+    return { crear, actualizar, dibujar, superficieBajo, SEPARACION, arrebatar, soltar };
 })();
 
 window.Companero = Companero;

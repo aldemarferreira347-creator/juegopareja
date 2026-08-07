@@ -187,6 +187,19 @@ const GUION = {
     "Nos cuesta a veces, pero siempre encontramos el camino de vuelta."
   ],
 
+  // ── Distancia — el jefe del capítulo "A tu lado" ──
+  // La grieta que se abre en el camino justo antes del portal. Se
+  // presenta con nombre y todo apenas empieza la batalla, y si el
+  // jugador se queda sin vidas respondiendo, se lleva al compañero
+  // por un momento — nunca de verdad ni para siempre.
+  jefe: {
+    presentacion: "Algo se interpone en el camino: Distancia.",
+    derrotaAviso: "{otro} se pierde en la grieta...",
+    derrotaTitulo: "Distancia gana este asalto",
+    derrotaTexto: "Por un momento pesó más que nosotros. Pero esto no se acaba aquí — todavía se puede cerrar esa grieta.",
+    derrotaBoton: "Cerrar la grieta y volver a intentarlo"
+  },
+
   // ── Pantalla de inicio ──
   menu: {
     titulo: "El Camino a Ti",

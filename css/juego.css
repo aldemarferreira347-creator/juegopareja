@@ -18,11 +18,11 @@
    ══════════════════════════════════════════════════════════════════════ */
 
 :root {
-    /* ── Paleta luminosa ── */
-    --crema: #fffaf2;
-    --crema-2: #fff4e4;
-    --tinta: #4a3b52;
-    --tinta-2: #8a7590;
+    /* ── Paleta cálida y suave (reducida fatiga visual) ── */
+    --crema: #f7eedf;
+    --crema-2: #f0e5d1;
+    --tinta: #36283d;
+    --tinta-2: #6c5675;
     --amarillo: #ffd23f;
     --amarillo-2: #f5a623;
     --amarillo-claro: #ffe98a;
@@ -30,12 +30,12 @@
     --rosa-claro: #f8c8dc;
     --verde: #7fbf7a;
 
-    --cielo: #ffe9d6;
+    --cielo: #f2dfcd;
     --borde: rgba(245, 166, 35, .28);
     --borde-vivo: rgba(245, 166, 35, .6);
-    /* Sombras de COLOR, jamás negras */
-    --sombra: 0 18px 44px rgba(214, 142, 40, .22), 0 3px 10px rgba(214, 142, 40, .14);
-    --sombra-btn: 0 8px 20px rgba(245, 166, 35, .34);
+    /* Sombras cálidas, reducidas en intensidad para evitar efecto de lámpara */
+    --sombra: 0 18px 44px rgba(214, 142, 40, .15), 0 3px 10px rgba(214, 142, 40, .08);
+    --sombra-btn: 0 8px 20px rgba(245, 166, 35, .25);
 
     --radio: 26px;
     --radio-2: 18px;
@@ -110,9 +110,9 @@ body {
     gap: 2px;
     padding: 10px 26px;
     border-radius: 999px;
-    background: rgba(255, 250, 242, .82);
-    backdrop-filter: blur(9px);
-    -webkit-backdrop-filter: blur(9px);
+    background: rgba(245, 235, 222, .85);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
     border: 1px solid var(--borde);
     box-shadow: var(--sombra);
     opacity: 0;
@@ -170,9 +170,9 @@ body {
     position: relative;
     padding: 18px 46px 18px 24px;
     border-radius: var(--radio-2);
-    background: rgba(255, 250, 242, .96);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: rgba(245, 235, 222, .94);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     border: 1px solid var(--borde);
     box-shadow: var(--sombra);
     /* Permitir scroll dentro si el texto es largo en pantalla pequeña */
@@ -226,7 +226,7 @@ body {
     align-items: center;
     justify-content: center;
     gap: 22px;
-    background: linear-gradient(170deg, #bfe4f2, #ffe9d6 55%, #ffd9e2);
+    background: linear-gradient(170deg, #a5d2e4, #f2dfcd 55%, #f0c5d0);
     color: var(--tinta-2);
     font-size: var(--t-menudo);
     letter-spacing: .14em;
@@ -265,13 +265,13 @@ body {
 #seleccion,
 #final-panel,
 #capitulo-panel,
-#compromiso-panel {
+#compromiso-panel,
+#jefe-derrota-panel {
     position: fixed;
     inset: 0;
     z-index: 12;
     display: flex;
-    align-items: center;
-    justify-content: center;
+    /* Centrado manejado por margin: auto en .panel-caja para evitar corte superior */
     /* Respetar safe areas en los cuatro lados: en iPhone con notch,
        sin esto el contenido queda bajo la barra de cámara o la barra
        de inicio, y no se puede leer ni tocar. */
@@ -279,10 +279,9 @@ body {
              max(22px, env(safe-area-inset-right))
              max(22px, env(safe-area-inset-bottom))
              max(22px, env(safe-area-inset-left));
-    /* Velo CLARO. Oscurecer aquí es justo lo que hacía que la versión
-       anterior pareciera otro juego. */
+    /* Velo más opaco y cálido, menos brillante */
     background: radial-gradient(120% 90% at 50% 20%,
-            rgba(255, 250, 242, .55), rgba(255, 217, 226, .78));
+            rgba(245, 235, 222, .75), rgba(240, 215, 222, .85));
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
     overflow-y: auto;
@@ -298,7 +297,8 @@ body {
    transición de entrada y los otros dos no. */
 #final-panel,
 #capitulo-panel,
-#compromiso-panel {
+#compromiso-panel,
+#jefe-derrota-panel {
     opacity: 0;
     pointer-events: none;
     transition: opacity .9s var(--ent);
@@ -306,22 +306,23 @@ body {
 
 #final-panel.visible,
 #capitulo-panel.visible,
-#compromiso-panel.visible {
+#compromiso-panel.visible,
+#jefe-derrota-panel.visible {
     opacity: 1;
     pointer-events: auto;
 }
 
 .panel-caja {
     position: relative;
+    margin: auto;
     width: min(560px, 100%);
     padding: clamp(28px, 5vw, 46px);
     text-align: center;
     border-radius: var(--radio);
-    /* Papel de carta: un degradado casi imperceptible del crema al
-       durazno. Un relleno plano se ve barato en pantallas grandes. */
+    /* Papel de carta antiguo, con menos luminancia pura */
     background:
-        radial-gradient(120% 80% at 50% 0%, rgba(255, 244, 214, .9), transparent 70%),
-        linear-gradient(165deg, #fffcf6, #fff3e2);
+        radial-gradient(120% 80% at 50% 0%, rgba(245, 230, 195, .8), transparent 70%),
+        linear-gradient(165deg, #f9f2e3, #eee2cc);
     border: 1px solid var(--borde);
     box-shadow: var(--sombra);
     animation: entrarPanel .7s var(--sal) both;
@@ -466,7 +467,7 @@ body {
 }
 
 .btn-suave:hover {
-    background: rgba(255, 244, 228, .8);
+    background: rgba(240, 225, 205, .8);
     color: var(--tinta);
 }
 
@@ -495,7 +496,7 @@ body {
     padding: 18px 14px 20px;
     border-radius: var(--radio-2);
     border: 2px solid transparent;
-    background: linear-gradient(180deg, rgba(255, 244, 228, .9), rgba(255, 250, 242, .5));
+    background: linear-gradient(180deg, rgba(245, 235, 215, .9), rgba(245, 235, 222, .6));
     cursor: pointer;
     touch-action: manipulation;
     font-family: inherit;
@@ -510,7 +511,7 @@ body {
 .tarjeta.activa {
     border-color: var(--borde-vivo);
     box-shadow: var(--sombra);
-    background: linear-gradient(180deg, #fff6dd, rgba(255, 250, 242, .8));
+    background: linear-gradient(180deg, #f2eacc, rgba(245, 235, 222, .8));
 }
 
 .tarjeta-lienzo {
@@ -601,10 +602,11 @@ body {
     #seleccion,
     #final-panel,
     #capitulo-panel,
-    #compromiso-panel {
+    #compromiso-panel,
+    #jefe-derrota-panel {
         backdrop-filter: none;
         -webkit-backdrop-filter: none;
-        background: radial-gradient(120% 90% at 50% 20%, rgba(255, 250, 242, 0.95), rgba(255, 217, 226, 0.98));
+        background: radial-gradient(120% 90% at 50% 20%, rgba(245, 235, 222, 0.95), rgba(240, 215, 222, 0.98));
     }
 }
 
@@ -685,9 +687,9 @@ body {
     padding: 0;
     border: 0;
     border-radius: 50%;
-    background: rgba(255, 250, 242, .82);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    background: rgba(245, 235, 222, .85);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
     border: 1px solid var(--borde);
     box-shadow: var(--sombra);
     color: var(--tinta-2);
@@ -706,7 +708,7 @@ body {
 }
 
 #btn-fullscreen:hover {
-    background: rgba(255, 250, 242, .98);
+    background: rgba(245, 235, 222, .98);
     transform: scale(1.08);
 }
 
@@ -728,4 +730,77 @@ body {
         height: 34px;
         font-size: 1rem;
     }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   BATALLA CINEMÁTICA (JEFE IN-GAME)
+   ══════════════════════════════════════════════════════════════════════ */
+.ui-batalla-overlay {
+    position: fixed;
+    bottom: max(20px, env(safe-area-inset-bottom));
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(800px, 95vw);
+    z-index: 10;
+    pointer-events: none;
+    text-align: center;
+    transition: opacity .5s var(--ent), transform .5s var(--ent);
+}
+
+.ui-batalla-overlay[hidden] {
+    display: block; /* Mantenemos display para la animación */
+    opacity: 0;
+    transform: translate(-50%, 20px);
+    pointer-events: none;
+}
+
+.ui-batalla-overlay:not([hidden]) {
+    opacity: 1;
+    transform: translate(-50%, 0);
+    pointer-events: auto;
+}
+
+#batalla-pregunta {
+    margin: 0 0 15px;
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.4rem, 4vw, 2rem);
+    color: var(--tinta);
+    background: rgba(245, 235, 222, .9);
+    padding: 10px 20px;
+    border-radius: var(--radio-2);
+    box-shadow: var(--sombra);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    display: inline-block;
+}
+
+.batalla-opciones-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    padding: 0 10px;
+}
+
+.btn-batalla {
+    min-height: 48px;
+    padding: 12px 24px;
+    border: 2px solid var(--borde-vivo);
+    border-radius: 999px;
+    background: rgba(245, 235, 222, .85);
+    color: var(--tinta);
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    box-shadow: 0 4px 12px rgba(214, 142, 40, .1);
+    transition: transform .2s, background .2s, color .2s;
+}
+
+.btn-batalla:hover {
+    background: var(--amarillo-claro);
+    transform: translateY(-2px);
+    color: #36283d;
 }

@@ -17,12 +17,15 @@ Un plataformas corto hecho para Isabela: cuatro capítulos, cada uno una etapa r
 5. **`menu`** y **`seleccion`**: la pantalla de inicio y la de elegir personaje.
 6. **`cartaFinal`**: el cierre de verdad, después del capítulo 4 ("Detalle final" en el panel).
 7. **`compromiso`**: la pregunta de la puerta de casa, al final del epílogo, y sus dos respuestas.
+8. **`jefe`**: el nombre de Distancia, la frase que lo presenta y el panel de derrota si se pierde la batalla contra él.
+
+**Las preguntas del jefe viven aparte, en [`js/preguntas.js`](js/preguntas.js)** — cada una tiene `pregunta`, sus `opciones`, el índice de la `correcta`, y dos frases (`exito` / `error`) que salen según la respuesta. Añadir una nueva es copiar el bloque de otra y cambiar el contenido; no hay límite de cuántas puede haber.
 
 Importante: ningún texto lleva símbolos ni marcas delante — cualquier cosa que pongas dentro de las comillas sale tal cual en pantalla. Si quieres dejarte una nota a ti mismo, escríbela como comentario (con `//` delante, fuera de las comillas), nunca dentro del texto.
 
 No hace falta tocar ningún otro archivo para cambiar el texto.
 
-**Si editas y recargas y no ves el cambio:** el navegador guarda los archivos en caché y a veces sigue mostrando la versión vieja. Sube en 1 el número `?v=10` que aparece al final de cada línea `<script src="js/...">` en `index.html` (el siguiente sería `?v=11`, luego `?v=12`, etc.) — eso obliga a cargar todo de nuevo. Si no quieres tocar `index.html`, con `Ctrl+Shift+R` (recarga forzada) también alcanza.
+**Si editas y recargas y no ves el cambio:** el navegador guarda los archivos en caché y a veces sigue mostrando la versión vieja. Sube en 1 el número `?v=12` que aparece al final de cada línea `<script src="js/...">` en `index.html` (el siguiente sería `?v=13`, luego `?v=14`, etc.) — eso obliga a cargar todo de nuevo. Si no quieres tocar `index.html`, con `Ctrl+Shift+R` (recarga forzada) también alcanza.
 
 ---
 
@@ -47,7 +50,7 @@ Al empezar se elige **con quién caminar: Carlo o Isabela**. Los dos tienen exac
 | 1 · El primer hola | Correr y saltar. Prado llano, huecos muy perdonables. |
 | 2 · Los jueves | **Planear.** Las islas están más lejos de lo que alcanza un salto. |
 | 3 · La pregunta | **Corrientes.** Columnas de pétalos que te suben. |
-| 4 · A tu lado | Los tres juntos, sin ningún peligro. |
+| 4 · A tu lado | Los tres juntos — y, justo antes del portal, la batalla contra Distancia. |
 
 ### Cómo se pasa un capítulo
 
@@ -62,6 +65,12 @@ Los corazones están colocados a propósito donde hace falta usar el verbo del c
 **Nunca hay muerte.** Caerse, o quedarse sin vidas, devuelve al último punto seguro con una frase, no con un "game over". Y ningún corazón puede quedarse inalcanzable: todos los niveles están construidos para que siempre se pueda volver a por lo que se dejó atrás.
 
 El progreso se guarda solo en ese navegador — el botón **Continuar** retoma desde el último capítulo y con el mismo personaje.
+
+### Distancia — el jefe del capítulo 4
+
+Justo antes del portal del último capítulo, el camino se corta: aparece **Distancia**, dibujada como una grieta que parte el camino en dos mitades que se alejan — no un enemigo con forma de persona, sino la distancia misma abriéndose paso. Hace tres preguntas (`js/preguntas.js`) sobre cosas fáciles de dar por sentadas en una relación; acertarlas la va cerrando, fallarlas cuesta una vida de las tres que hay.
+
+**Si se agotan las tres vidas respondiendo**, Distancia gana ese asalto: se lleva volando al personaje que no se está jugando, la pantalla lo dice con un panel propio, y un solo botón — **"Cerrar la grieta y volver a intentarlo"** — devuelve al último checkpoint con Distancia lista para el siguiente intento. Igual que el resto del juego, esto **nunca es un final real**: es teatro para dar peso a las preguntas, no una manera de perder de verdad.
 
 ### El epílogo — "Caminar juntos"
 
@@ -130,6 +139,8 @@ Sin build, sin dependencias, sin conexión a nada. Cada módulo hace una sola co
 | `js/niveles.js` | La geometría de los 4 capítulos |
 | `js/companero.js` | El personaje que no estás jugando |
 | `js/sfx.js` | Los sonidos (sintetizados, sin archivos de audio) |
+| `js/preguntas.js` | El banco de preguntas de Distancia |
+| `js/jefe.js` | Distancia: su dibujo, su vida y la secuencia de batalla |
 | `js/juego.js` | El bucle — conecta todo lo anterior |
 | `js/final.js` | El panel de la carta |
 | `js/seleccion.js` | La pantalla de elegir personaje |
