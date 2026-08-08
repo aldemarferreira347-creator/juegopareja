@@ -74,7 +74,7 @@ const BaseDatosPreguntas = [
             "Ni anillo ni manilla",
             "El valor para hablar"
         ],
-        correcta: [2,3], // "Ni anillo ni manilla"
+        correcta: 2, // "Ni anillo ni manilla"
         exito: "Nada de anillo, nada de manilla — sólo la pregunta, desnuda, tal cual era yo ese día.",
         error: "Ese día te dije, muy claro, lo que me faltaba encima. Repásalo."
     },
