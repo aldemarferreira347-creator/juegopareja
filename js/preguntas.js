@@ -28,16 +28,16 @@ const BaseDatosPreguntas = [
     },
     {
         id: "dia_favorito",
-        pregunta: "¿Cuál era nuestro día favorito?",
+        pregunta: "¿Cuál es nuestro día favorito?",
         opciones: [
             "Lunes", 
             "Viernes", 
-            "Jueves", 
+            "Domingo", 
             "Sábado"
         ],
-        correcta: 2, // "Jueves"
-        exito: "El día que siempre fue nuestro, a pesar de la distancia.",
-        error: "Casi... recuerda qué día era el más esperado de la semana."
+        correcta: 2, // "Domingo"
+        exito: "El día que siempre es nuestro, a pesar de la distancia.",
+        error: "Casi... recuerda qué día es el más esperado de la semana."
     },
     {
         id: "gran_pregunta",
@@ -70,11 +70,11 @@ const BaseDatosPreguntas = [
         pregunta: "El día de la gran pregunta, ¿qué te dije que no tenía conmigo?",
         opciones: [
             "Las palabras correctas",
-            "Mi teléfono",
+            "algo que nos uniera",
             "Ni anillo ni manilla",
             "El valor para hablar"
         ],
-        correcta: 2, // "Ni anillo ni manilla"
+        correcta: [2,3], // "Ni anillo ni manilla"
         exito: "Nada de anillo, nada de manilla — sólo la pregunta, desnuda, tal cual era yo ese día.",
         error: "Ese día te dije, muy claro, lo que me faltaba encima. Repásalo."
     },
@@ -106,7 +106,7 @@ const BaseDatosPreguntas = [
     },
     {
         id: "cumpleanos",
-        pregunta: "¿Qué día es tu cumpleaños?",
+        pregunta: "¿Qué día es mi cumpleaños?",
         opciones: [
             "29 de agosto",
             "30 de agosto",
