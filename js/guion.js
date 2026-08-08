@@ -193,6 +193,7 @@ const GUION = {
   // jugador se queda sin vidas respondiendo, se lleva al compañero
   // por un momento — nunca de verdad ni para siempre.
   jefe: {
+    nombre: "Distancia",
     presentacion: "Algo se interpone en el camino: Distancia.",
     derrotaAviso: "{otro} se pierde en la grieta...",
     derrotaTitulo: "Distancia gana este asalto",

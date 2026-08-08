@@ -25,7 +25,7 @@ Importante: ningún texto lleva símbolos ni marcas delante — cualquier cosa q
 
 No hace falta tocar ningún otro archivo para cambiar el texto.
 
-**Si editas y recargas y no ves el cambio:** el navegador guarda los archivos en caché y a veces sigue mostrando la versión vieja. Sube en 1 el número `?v=12` que aparece al final de cada línea `<script src="js/...">` en `index.html` (el siguiente sería `?v=13`, luego `?v=14`, etc.) — eso obliga a cargar todo de nuevo. Si no quieres tocar `index.html`, con `Ctrl+Shift+R` (recarga forzada) también alcanza.
+**Si editas y recargas y no ves el cambio:** el navegador guarda los archivos en caché y a veces sigue mostrando la versión vieja. Sube en 1 el número `?v=15` que aparece al final de cada línea `<script src="js/...">` en `index.html` (el siguiente sería `?v=16`, luego `?v=17`, etc.) — eso obliga a cargar todo de nuevo. Si no quieres tocar `index.html`, con `Ctrl+Shift+R` (recarga forzada) también alcanza.
 
 ---
 

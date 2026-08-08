@@ -178,6 +178,8 @@ body {
     /* Permitir scroll dentro si el texto es largo en pantalla pequeña */
     overflow-y: auto;
     max-height: 36vh;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
 }
 
 #subtitulos-texto {
@@ -285,6 +287,14 @@ body {
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
     overflow-y: auto;
+    /* Sin esto, en iOS más viejo el scroll dentro de un panel se sentía
+       "trabado" — un toque y arrastre no bastaba, hacía falta soltar y
+       volver a arrastrar. Con carta larga (5 párrafos) en un teléfono es
+       justo donde más se nota. overscroll-behavior evita que, al llegar
+       al final, el arrastre se cuele como scroll del body de detrás
+       (que está fijo, así que se sentía como un rebote roto). */
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
 }
 
 #menu-inicio[hidden],
@@ -587,27 +597,6 @@ body {
     #subtitulos-caja {
         padding: 14px 38px 14px 18px;
     }
-
-    /* Rendimiento Móvil: Quitar backdrop-filter para evitar el colapso del WebGL/Canvas (blank screen) y lags */
-    #hud-capitulo,
-    #subtitulos-caja,
-    #btn-fullscreen {
-        backdrop-filter: none;
-        -webkit-backdrop-filter: none;
-        background: rgba(255, 250, 242, 0.98);
-    }
-    
-    #menu-inicio,
-    #pantalla-completa-panel,
-    #seleccion,
-    #final-panel,
-    #capitulo-panel,
-    #compromiso-panel,
-    #jefe-derrota-panel {
-        backdrop-filter: none;
-        -webkit-backdrop-filter: none;
-        background: radial-gradient(120% 90% at 50% 20%, rgba(245, 235, 222, 0.95), rgba(240, 215, 222, 0.98));
-    }
 }
 
 @media (max-height: 460px) {
@@ -745,6 +734,15 @@ body {
     pointer-events: none;
     text-align: center;
     transition: opacity .5s var(--ent), transform .5s var(--ent);
+    /* Ancla por abajo y crece hacia arriba con el contenido: sin tope,
+       una pregunta con 4 opciones largas en un teléfono podía crecer más
+       alto que la pantalla y salirse por ARRIBA — invisible e intocable,
+       exactamente lo que se sentía como "las preguntas salen trabadas".
+       Con el tope, en vez de desbordarse hace scroll dentro de sí misma. */
+    max-height: min(72vh, calc(100dvh - 120px));
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
 }
 
 .ui-batalla-overlay[hidden] {
@@ -803,4 +801,59 @@ body {
     background: var(--amarillo-claro);
     transform: translateY(-2px);
     color: #36283d;
+}
+
+/* Opciones más angostas y compactas en pantallas pequeñas — algunas
+   respuestas (el nombre completo, una fecha larga) no caben cómodas con
+   el tamaño de escritorio. */
+@media (max-width: 480px) {
+    #batalla-pregunta {
+        font-size: clamp(1.1rem, 4.6vw, 1.4rem);
+        padding: 8px 16px;
+    }
+
+    .btn-batalla {
+        min-height: 44px;
+        padding: 10px 16px;
+        font-size: .92rem;
+    }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   RENDIMIENTO MÓVIL — quitar backdrop-filter
+   Va AL FINAL del archivo a propósito: con la misma especificidad que
+   las reglas base (una sola clase), gana la que aparece última en el
+   código — así que si este bloque quedara antes de `.btn-batalla` o de
+   `#batalla-pregunta`, esas reglas base lo pisarían y el blur seguiría
+   activo en móvil sin ningún aviso visual del problema. Es justo lo que
+   pasó la primera vez que se escribió esta regla, y el motivo del blur
+   que aún se colaba en el panel de batalla en pantallas táctiles.
+
+   Además, esto NO puede depender sólo del ANCHO de pantalla — un
+   teléfono en horizontal, o uno grande, supera los 560px sin dejar de
+   ser un teléfono. `(hover: none) and (pointer: coarse)` detecta
+   pantallas táctiles de verdad sin importar el tamaño ni la orientación.
+   ══════════════════════════════════════════════════════════════════════ */
+@media (max-width: 560px), (hover: none) and (pointer: coarse) {
+    #hud-capitulo,
+    #subtitulos-caja,
+    #btn-fullscreen,
+    #batalla-pregunta,
+    .btn-batalla {
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        background: rgba(255, 250, 242, 0.98);
+    }
+
+    #menu-inicio,
+    #pantalla-completa-panel,
+    #seleccion,
+    #final-panel,
+    #capitulo-panel,
+    #compromiso-panel,
+    #jefe-derrota-panel {
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        background: radial-gradient(120% 90% at 50% 20%, rgba(245, 235, 222, 0.95), rgba(240, 215, 222, 0.98));
+    }
 }

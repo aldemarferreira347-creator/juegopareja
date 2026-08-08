@@ -124,6 +124,15 @@ const Juego = (function () {
     // Muelle del brillo del HUD al recoger: el marcador reacciona.
     let latido = new Nucleo.Muelle(0, 190, 13);
 
+    // Cualquier panel de pantalla completa que tape el lienzo por debajo
+    // ahora mismo. medir() lo usa para no reconstruir el capítulo mientras
+    // el jugador está leyendo o mirando un panel en vez de jugando.
+    function hayPanelAbierto() {
+        return panelCapMostrado || juegoTerminado ||
+            (elCompromiso && elCompromiso.classList.contains('visible')) ||
+            (elJefeDerrota && elJefeDerrota.classList.contains('visible'));
+    }
+
     // ══════════════════════════════════════════════
     // MEDIDAS
     // ══════════════════════════════════════════════
@@ -144,11 +153,18 @@ const Juego = (function () {
         const w = window.innerWidth, h = window.innerHeight;
         if (w < 2 || h < 2) return;
 
-        // Evitar reiniciar el nivel entero por cambios menores de alto en móvil (ej. barra de navegación)
+        // Evitar reiniciar el nivel entero por cambios menores de tamaño en
+        // móvil (la barra de direcciones o el teclado apareciendo/
+        // escondiéndose). La comparación de ancho NO puede ser una
+        // igualdad estricta: en móvil `innerWidth` puede temblar por
+        // fracciones de píxel durante ese mismo cambio, y con `=== 0` ese
+        // temblor bastaba para colarse como si fuera un giro de pantalla
+        // de verdad — esto era lo que hacía "desaparecer" el escenario
+        // (y, a media batalla, reiniciaba a Distancia de golpe).
         const deltaW = Math.abs(w - prevW);
         const deltaH = Math.abs(h - prevH);
-        if (prevW > 0 && deltaW === 0 && deltaH < 100) return;
-        
+        if (prevW > 0 && deltaW < 2 && deltaH < 160) return;
+
         prevW = w;
         prevH = h;
 
@@ -163,6 +179,17 @@ const Juego = (function () {
         prepararBuffers();
         Camara.medir(cam, W, H);
         if (Sprites.listo) Sprites.hornear(Fisica.ALTO_CUERPO);
+
+        // Con un panel de pantalla completa abierto (carta, batalla
+        // perdida, compromiso, capítulo superado) el jugador no ve el
+        // lienzo — pero SÍ vería el parpadeo de reconstruirlo por debajo,
+        // y si es a media batalla contra Distancia la dejaría reiniciada
+        // de golpe. Sólo se reencuadra la cámara al nuevo tamaño; la
+        // reconstrucción de verdad espera a que el panel se cierre.
+        if (nivel && hayPanelAbierto()) {
+            Camara.fijar(cam, jugador, nivel);
+            return;
+        }
 
         if (nivel) {
             // La geometría se calcula a partir de H, así que cambiar de
@@ -1436,11 +1463,16 @@ const Juego = (function () {
         dibujarBrujula(cx);
     }
 
-    // Fila de vidas, justo debajo de la cápsula de corazones. Sólo se
-    // dibuja en capítulos que de verdad tienen corazones rotos — en los
-    // que no, no hay nada que perder y no hace falta el aviso.
+    // Fila de vidas, justo debajo de la cápsula de corazones. Se dibuja
+    // en capítulos que de verdad tienen corazones rotos — o mientras la
+    // batalla contra Distancia está activa, que también puede costarlas
+    // aunque el capítulo 4 no tenga corazones rotos en el mapa. En los
+    // que no tienen ninguna de las dos cosas, no hay nada que perder y
+    // no hace falta el aviso.
     function dibujarVidas() {
-        if (!nivel.corazonesRotos || !nivel.corazonesRotos.length) return;
+        const hayPeligroDeVerdad = (nivel.corazonesRotos && nivel.corazonesRotos.length) ||
+            (window.Jefe && Jefe.activo);
+        if (!hayPeligroDeVerdad) return;
         const R = 8.5, paso = 22;
         const x0 = 26 + R, y0 = 30 + 34;
         g.save();

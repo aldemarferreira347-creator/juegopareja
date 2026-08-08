@@ -254,21 +254,30 @@ const Jefe = (function () {
         }
         g.globalAlpha = alphaBase;
 
-        // Barra de Vida del Jefe encima
-        if (estado === 'preguntando' || estado === 'dano') {
+        // Nombre y barra de vida del jefe encima — visibles durante toda
+        // la batalla (preguntando, dañado, o ganando el asalto), no sólo
+        // en la presentación fugaz del subtítulo del principio.
+        if (estado === 'preguntando' || estado === 'dano' || estado === 'ganador') {
             const vidaMax = window.BaseDatosPreguntas.length;
             const bw = 100;
             const bh = 8;
             const bx = dx + ancho/2 - bw/2;
             const by = dy - 30 + flotacion;
-            
+
+            const nombreJefe = (window.GUION && GUION.jefe && GUION.jefe.nombre) || 'Distancia';
+            g.textAlign = 'center';
+            g.textBaseline = 'alphabetic';
+            g.font = "600 14px 'Playfair Display', serif";
+            g.fillStyle = 'rgba(54,40,61,0.85)';
+            g.fillText(nombreJefe, bx + bw / 2, by - 8);
+
             g.fillStyle = 'rgba(0,0,0,0.3)';
             g.beginPath();
             g.roundRect(bx, by, bw, bh, 4);
             g.fill();
-            
+
             if (vida > 0) {
-                g.fillStyle = '#ff9ec4';
+                g.fillStyle = estado === 'ganador' ? '#c98b98' : '#ff9ec4';
                 g.beginPath();
                 g.roundRect(bx, by, (vida / vidaMax) * bw, bh, 4);
                 g.fill();
