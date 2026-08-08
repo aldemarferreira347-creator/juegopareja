@@ -245,7 +245,7 @@ const GUION = {
   // {otro} se cambia solo por el nombre del personaje que NO se está
   // jugando (el compañero de todo el camino).
   compromiso: {
-    titulo: "¿Estás segura de pasar toda tu vida junto a mí?",
+    titulo: "¿Estás segura de tenerme junto a ti como pareja?",
     subtitulo: "No hay ninguna prisa. Contesta sólo cuando de verdad lo sientas así.",
     si: "Sí",
     no: "Todavía no",

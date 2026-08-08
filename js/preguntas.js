@@ -119,7 +119,7 @@ const BaseDatosPreguntas = [
     },
     {
         id: "los_jueves_distancia",
-        pregunta: "Durante los jueves separados, ¿qué dije que nunca lograba reemplazar del todo?",
+        pregunta: "Durante los dias separados, ¿qué dije que nunca lograba reemplazar del todo?",
         opciones: [
             "Una videollamada",
             "Un mensaje de buenos días",
